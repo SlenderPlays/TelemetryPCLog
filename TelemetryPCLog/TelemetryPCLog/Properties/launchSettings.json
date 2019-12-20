@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TelemetryPCLog": {
+      "commandName": "Project",
+      "commandLineArgs": "-i true"
+    }
+  }
+}
