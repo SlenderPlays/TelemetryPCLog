@@ -112,7 +112,7 @@ namespace TelemetryPCLog
 							Console.WriteLine(e.Message);
 							Console.WriteLine(e.StackTrace);
 						}
-						System.Threading.Thread.Sleep(100);
+						System.Threading.Thread.Sleep(10);
 					}
 
 					Console.WriteLine("[!!!] Connection Lost!");

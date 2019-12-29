@@ -612,7 +612,7 @@ public class FtcRobotControllerActivity extends Activity
       return true;
     }
     else if (id == R.id.action_set_op_mode) {
-      eventLoop.setMenuOPMode("Concept: TensorFlow Object Detection");
+      eventLoop.setMenuOPMode("SKYSTONE Vuforia Nav");
       return true;
     }
     else if (id == R.id.action_configure_robot) {

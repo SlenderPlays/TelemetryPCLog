@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,8 +103,21 @@ public class TelemetryPCLog {
                         }
 
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                    try {
+                        output.close();
+                    }
+                    catch (Exception e2){
+                        e2.printStackTrace();
+                    }
+                    try {
+                        clientSocket.close();
+                    }
+                    catch (Exception e3){
+                        e3.printStackTrace();
+                    }
+                    return;
                 }
             }
         }

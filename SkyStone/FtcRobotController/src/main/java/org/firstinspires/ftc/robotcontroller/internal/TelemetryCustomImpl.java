@@ -35,10 +35,25 @@ package org.firstinspires.ftc.robotcontroller.internal;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class TelemetryCustomImpl extends TelemetryImpl {
+
+
+    protected List<String> lastComposedLines = new ArrayList<>();
+
+    public boolean sendUnique;
+
     public TelemetryCustomImpl(OpMode opMode) {
         super(opMode);
+        this.sendUnique = false;
+    }
+
+    public TelemetryCustomImpl(OpMode opMode, boolean sendUnique) {
+        super(opMode);
+        this.sendUnique = sendUnique;
     }
 
     @Override
@@ -46,11 +61,15 @@ public class TelemetryCustomImpl extends TelemetryImpl {
         boolean result = super.update();
 
         // <Payload>
-        StringBuilder remoteString = new StringBuilder();
-        for (String line: composedLines) {
-            remoteString.append(line).append("\n");
+        if(!sendUnique || !lastComposedLines.equals(composedLines)) {
+            StringBuilder remoteString = new StringBuilder();
+            for (String line : composedLines) {
+                remoteString.append(line).append("\n");
+            }
+            FtcRobotControllerActivity.telemetryPCLog.Broadcast(remoteString.toString());
+
+            lastComposedLines = composedLines;
         }
-        FtcRobotControllerActivity.telemetryPCLog.Broadcast(remoteString.toString());
         // </Payload>
 
         return result;
