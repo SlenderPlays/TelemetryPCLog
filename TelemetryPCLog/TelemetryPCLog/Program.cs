@@ -90,16 +90,49 @@ namespace TelemetryPCLog
 					// Read the first batch of the TcpServer response bytes.
 					Console.WriteLine("Connection made!");
 					heartbeatFailed = false;
-					while (true)
+
+					if (delay >= 0)
 					{
-						try
+						//Read with Delay
+						while (true)
 						{
-							if (!client.Connected || heartbeatFailed)
+							try
 							{
-								break;
+								if (!client.Connected || heartbeatFailed)
+								{
+									break;
+								}
+								if (stream.DataAvailable)
+								{
+									Int32 byteResponse = stream.Read(data, 0, data.Length);
+									responseString = Encoding.ASCII.GetString(data, 0, byteResponse);
+									if (!String.IsNullOrWhiteSpace(responseString))
+									{
+										Console.Write(responseString);
+									}
+								}
 							}
-							if (delay == -1 || stream.DataAvailable)
+							catch (Exception e)
 							{
+								Console.WriteLine("[!] Error caught, trivial or undetermined error level!");
+								Console.WriteLine(e.Message);
+								Console.WriteLine(e.StackTrace);
+							}
+							System.Threading.Thread.Sleep(delay);
+
+						}
+					}
+					else if (delay == -1)
+					{
+						// Always read
+						while (true)
+						{
+							try
+							{
+								if (!client.Connected || heartbeatFailed)
+								{
+									break;
+								}
 								Int32 byteResponse = stream.Read(data, 0, data.Length);
 								responseString = Encoding.ASCII.GetString(data, 0, byteResponse);
 								if (!String.IsNullOrWhiteSpace(responseString))
@@ -107,16 +140,42 @@ namespace TelemetryPCLog
 									Console.Write(responseString);
 								}
 							}
+							catch (Exception e)
+							{
+								Console.WriteLine("[!] Error caught, trivial or undetermined error level!");
+								Console.WriteLine(e.Message);
+								Console.WriteLine(e.StackTrace);
+							}
 						}
-						catch (Exception e)
+					}
+					else
+					{
+						// delay <= -2
+						// Read without delay, only when data available
+						while (true)
 						{
-							Console.WriteLine("[!] Error caught, trivial or undetermined error level!");
-							Console.WriteLine(e.Message);
-							Console.WriteLine(e.StackTrace);
-						}
-						if (delay >= 0)
-						{
-							System.Threading.Thread.Sleep(delay);
+							try
+							{
+								if (!client.Connected || heartbeatFailed)
+								{
+									break;
+								}
+								if (stream.DataAvailable)
+								{
+									Int32 byteResponse = stream.Read(data, 0, data.Length);
+									responseString = Encoding.ASCII.GetString(data, 0, byteResponse);
+									if (!String.IsNullOrWhiteSpace(responseString))
+									{
+										Console.Write(responseString);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								Console.WriteLine("[!] Error caught, trivial or undetermined error level!");
+								Console.WriteLine(e.Message);
+								Console.WriteLine(e.StackTrace);
+							}
 						}
 					}
 
