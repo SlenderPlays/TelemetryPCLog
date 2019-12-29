@@ -2,7 +2,7 @@
   "profiles": {
     "TelemetryPCLog": {
       "commandName": "Project",
-      "commandLineArgs": "-i true -d -2"
+      "commandLineArgs": "-i true -d -10"
     }
   }
 }
