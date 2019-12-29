@@ -23,8 +23,10 @@ namespace TelemetryPCLog
 
 			[Option('p', "port", Default = 8333, HelpText = "The port that is listening on the Robot Controller.", Required = false)]
 			public int argPort { get; set; }
-		}
 
+			[Option('d', "delay", Default = 100, HelpText = "The delay between each read in ms. Warning! For 0, it will use most of the system's resources, if you wish to let it use as much as possible, set the delay to -2, if you wish to let it read as much as it can with less resource usage, use -1!", Required = false)]
+			public int argDelay { get; set; }
+		}
 		static NetworkStream stream;
 		static bool heartbeatFailed = false;
 		static Timer aTimer;
@@ -42,24 +44,24 @@ namespace TelemetryPCLog
 
 					   if (options.argInfinite)
 					   {
-						   ConnectForever(options.argIp, options.argPort);
+						   ConnectForever(options.argIp, options.argPort,options.argDelay);
 					   }
 					   else
 					   {
-						   Connect(options.argIp, options.argPort, options.argAttempts);
+						   Connect(options.argIp, options.argPort, options.argAttempts, options.argDelay);
 					   }
 					   Console.WriteLine("Either a fatal error has occured or there have been too many attempts, restarting");
 				   });
 		}
-		static void ConnectForever(string server, int port)
+		static void ConnectForever(string server, int port, int delay = 100)
 		{
 			while (true)
 			{
-				Connect(server, port, 1);
+				Connect(server, port, 1, delay);
 				System.Threading.Thread.Sleep(500);
 			}
 		}
-		static void Connect(string server, int port, int attempts = 1)
+		static void Connect(string server, int port, int attempts = 1, int delay = 100)
 		{
 			for (int i = 0; i < attempts; i++)
 			{
@@ -92,7 +94,11 @@ namespace TelemetryPCLog
 					{
 						try
 						{
-							if (stream.DataAvailable)
+							if (!client.Connected || heartbeatFailed)
+							{
+								break;
+							}
+							if (delay == -1 || stream.DataAvailable)
 							{
 								Int32 byteResponse = stream.Read(data, 0, data.Length);
 								responseString = Encoding.ASCII.GetString(data, 0, byteResponse);
@@ -101,10 +107,6 @@ namespace TelemetryPCLog
 									Console.Write(responseString);
 								}
 							}
-							if (!client.Connected || heartbeatFailed)
-							{
-								break;
-							}
 						}
 						catch (Exception e)
 						{
@@ -112,7 +114,10 @@ namespace TelemetryPCLog
 							Console.WriteLine(e.Message);
 							Console.WriteLine(e.StackTrace);
 						}
-						System.Threading.Thread.Sleep(10);
+						if (delay >= 0)
+						{
+							System.Threading.Thread.Sleep(delay);
+						}
 					}
 
 					Console.WriteLine("[!!!] Connection Lost!");
